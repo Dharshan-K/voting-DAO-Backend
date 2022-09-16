@@ -1,0 +1,35 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/voting.sol": {
+      "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.0;\r\n\r\ncontract voting {\r\n    struct Proposal {\r\n        uint256 proposalId;\r\n        string proposalTitle;\r\n        string proposalDescription;\r\n        uint256 yesVotes;\r\n        uint256 noVotes;\r\n        bool excecuted;\r\n        uint256 deadline;\r\n    }\r\n    mapping(address => bool) public voterData;\r\n\r\n    uint256 proposalCount = 0;\r\n    mapping(uint256 => Proposal) public proposalData;\r\n    enum voteOption {\r\n        yes,\r\n        no\r\n    }\r\n\r\n    function createProposal(\r\n        string memory _ProposalTitle,\r\n        string memory _ProposalDescription\r\n    ) public {\r\n        proposalCount++;\r\n        Proposal storage proposal = proposalData[proposalCount];\r\n        proposal.proposalId = proposalCount;\r\n        proposal.proposalTitle = _ProposalTitle;\r\n        proposal.proposalDescription = _ProposalDescription;\r\n        proposal.deadline = block.timestamp + 30 minutes;\r\n    }\r\n\r\n    function voteProposal(uint256 _proposalId, voteOption vote) public {\r\n        Proposal storage proposal = proposalData[_proposalId];\r\n        if (proposal.deadline >= block.timestamp) {\r\n            voterData[msg.sender] = true;\r\n            if (vote == voteOption.yes) {\r\n                proposal.yesVotes++;\r\n            } else if (vote == voteOption.no) {\r\n                proposal.noVotes++;\r\n            }\r\n        }\r\n    }\r\n\r\n    function excecution(uint256 _proposalId) public {\r\n        Proposal storage proposal = proposalData[_proposalId];\r\n        if (block.timestamp > proposal.deadline) {\r\n            if (proposal.yesVotes > proposal.noVotes) {\r\n                proposal.excecuted = true;\r\n            } else {\r\n                proposal.excecuted = false;\r\n            }\r\n        }\r\n    }\r\n\r\n    function getProposalCount() public view returns (uint256) {\r\n        return proposalCount;\r\n    }\r\n\r\n    function getExcecutionStatus(uint256 _proposalId)\r\n        public\r\n        view\r\n        returns (bool)\r\n    {\r\n        Proposal storage proposal = proposalData[_proposalId];\r\n        return proposal.excecuted;\r\n    }\r\n\r\n    function getYesVotes(uint256 _proposalId) public view returns (uint256) {\r\n        Proposal storage proposal = proposalData[_proposalId];\r\n        return proposal.yesVotes;\r\n    }\r\n\r\n    function getProposalTitle(uint256 _proposalId)\r\n        public\r\n        view\r\n        returns (string memory)\r\n    {\r\n        Proposal storage proposal = proposalData[_proposalId];\r\n        return proposal.proposalTitle;\r\n    }\r\n\r\n    function getproposal(uint256 _proposalId)\r\n        public\r\n        view\r\n        returns (Proposal memory)\r\n    {\r\n        Proposal storage proposal = proposalData[_proposalId];\r\n        return proposal;\r\n    }\r\n\r\n    fallback() external payable {}\r\n\r\n    receive() external payable {}\r\n}\r\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
